@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const RegisterForm = () => {
@@ -15,13 +16,14 @@ const RegisterForm = () => {
       [name]: value,
     });
   };
-
+  const navigate=useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/register', formData);
       console.log('Registration successful:', response.data);
       // Redirect 
+      navigate("/login");
     } catch (error) {
       console.error('Error registering:', error);
     }
