@@ -8,6 +8,14 @@ const Problem = require("./Models/Problem.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+//compiler
+const {
+  generateCppFile,
+  generateJavaFile,
+  generatePythonFile,
+  generateCFile
+} = require("./generateFile");
+const { executeCpp, executeJava, executePython, executeC} = require("./executeCpp");
 
 dotenv.config();
 DBConnection();
@@ -177,6 +185,45 @@ app.delete("/deleteProblem/:id", (req, res) => {
   Problem.findByIdAndDelete({ _id: id })
     .then((problems) => res.json(problems))
     .catch((err) => res.json(err));
+});
+
+app.post("/run", async (req, res) => {
+  const { language = "cpp", code } = req.body;
+  if (code === undefined) {
+    return res.status(404).json({ success: false, error: "Empty code!" });
+  }
+
+  try {
+    let filePath;
+    let output;
+
+    switch (language) {
+      case "cpp":
+        filePath = await generateCppFile(code);
+        output = await executeCpp(filePath);
+        break;
+      case "java":
+        filePath = await generateJavaFile(code);
+        output = await executeJava(filePath);
+        break;
+      case "py":
+        filePath = await generatePythonFile(code);
+        output = await executePython(filePath);
+        break;
+      case "c":
+        filePath = await generateCFile(code);
+        output = await executeC(filePath);
+        break;
+      default:
+        return res
+          .status(400)
+          .json({ success: false, error: "Unsupported language!" });
+    }
+
+    res.json({ filePath, output });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
 });
 
 app.listen(process.env.PORT, () => {
