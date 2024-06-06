@@ -36,36 +36,42 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="login-form">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            autoComplete="email"
-          />
+    <div className="container d-flex align-items-center justify-content-center vh-100">
+      <div className="card p-4 w-50">
+        <h2 className="card-title text-center">Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="form-control"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label">Password:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              className="form-control"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              autoComplete="current-password"
+            />
+          </div>
+          <button type="submit" className="btn btn-primary w-100">Login</button>
+        </form>
+        <div className="mt-3 text-center">
+          <Link to="/register">Register Here</Link>
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            autoComplete="current-password"
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <Link to="/register">Register Here</Link>
+      </div>
     </div>
   );
 };

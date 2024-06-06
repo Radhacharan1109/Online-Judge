@@ -7,6 +7,7 @@ const CreateProblem = () => {
     title: "",
     description: "",
     difficulty: "",
+    testcases: [],
   });
 
   const navigate = useNavigate();
@@ -19,15 +20,37 @@ const CreateProblem = () => {
     });
   };
 
+  const handleTestcaseChange = (e, index) => {
+    const { name, value } = e.target;
+    const updatedTestcases = [...formData.testcases];
+    updatedTestcases[index][name] = value;
+    setFormData({
+      ...formData,
+      testcases: updatedTestcases,
+    });
+  };
+
+  const addTestcase = () => {
+    setFormData({
+      ...formData,
+      testcases: [...formData.testcases, { input: "", output: "" }],
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/createproblem', formData);
-      console.log('Registration successful:', response.data);
-      // Redirect 
-      navigate("/home");
+      // Stringify the testcases array before sending it to the server
+      const testcasesString = JSON.stringify(formData.testcases);
+      const response = await axios.post(
+        "http://localhost:5000/createproblem",
+        { ...formData, testcases: testcasesString }
+      );
+      console.log("Problem creation successful:", response.data);
+      // Redirect
+      navigate("/home");        
     } catch (error) {
-      console.error('Error registering:', error);
+      console.error("Error creating problem:", error);
     }
   };
 
@@ -38,7 +61,9 @@ const CreateProblem = () => {
           <form onSubmit={handleSubmit}>
             <h2 className="card-title">Add Problem</h2>
             <div className="mb-3">
-              <label htmlFor="title" className="form-label">Title</label>
+              <label htmlFor="title" className="form-label">
+                Title
+              </label>
               <input
                 type="text"
                 id="title"
@@ -51,7 +76,9 @@ const CreateProblem = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="description" className="form-label">Description</label>
+              <label htmlFor="description" className="form-label">
+                Description
+              </label>
               <input
                 type="text"
                 id="description"
@@ -64,25 +91,75 @@ const CreateProblem = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="difficulty" className="form-label">Difficulty</label>
-              <input
-                type="text"
+              <label htmlFor="difficulty" className="form-label">
+                Difficulty
+              </label>
+              <select
                 id="difficulty"
                 name="difficulty"
-                placeholder="Enter Difficulty"
-                className="form-control"
+                className="form-select"
                 value={formData.difficulty}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Difficulty
+                </option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
             </div>
-            <button className="btn btn-success">Submit</button>
+            <div>
+              <h4>Test Cases</h4>
+              {formData.testcases.map((testcase, index) => (
+                <div key={index}>
+                  <div className="mb-3">
+                    <label htmlFor={`input${index}`} className="form-label">
+                      Input
+                    </label>
+                    <input
+                      type="text"
+                      id={`input${index}`}
+                      name="input"
+                      placeholder="Enter Input"
+                      className="form-control"
+                      value={testcase.input}
+                      onChange={(e) => handleTestcaseChange(e, index)}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor={`output${index}`} className="form-label">
+                      Output
+                    </label>
+                    <input
+                      type="text"
+                      id={`output${index}`}
+                      name="output"
+                      placeholder="Enter Output"
+                      className="form-control"
+                      value={testcase.output}
+                      onChange={(e) => handleTestcaseChange(e, index)}
+                      required
+                    />
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={addTestcase}
+              >
+                Add Test Case
+              </button>
+            </div>
+            <button className="btn btn-success mt-3">Submit</button>
           </form>
         </div>
       </div>
     </div>
   );
-  
 };
 
 export default CreateProblem;

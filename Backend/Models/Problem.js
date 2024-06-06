@@ -15,6 +15,12 @@ const problemschema= new mongoose.Schema({
         type: String,
         required: true,
     },
+    testcases: [
+        {
+            input: { type: String },
+            output: { type: String },
+        }
+    ]
 });
 
 module.exports = mongoose.model("problem",problemschema);

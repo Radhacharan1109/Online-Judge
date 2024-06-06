@@ -13,9 +13,15 @@ const {
   generateCppFile,
   generateJavaFile,
   generatePythonFile,
-  generateCFile
+  generateCFile,
 } = require("./generateFile");
-const { executeCpp, executeJava, executePython, executeC} = require("./executeCpp");
+const { generateInputFile } = require("./generateInputFile");
+const {
+  executeCpp,
+  executeJava,
+  executePython,
+  executeC,
+} = require("./executeFile");
 
 dotenv.config();
 DBConnection();
@@ -131,22 +137,24 @@ app.post("/login", async (req, res) => {
 
 app.post("/createproblem", async (req, res) => {
   try {
-    //get all the problem data
-    const { title, description, difficulty } = req.body;
-    if (!(title && description && difficulty)) {
-      return res.status(400).send("Please enter all the information");
+    const { title, description, difficulty, testcases } = req.body;
+    if (!(title && description && difficulty && testcases)) {
+      return res.status(400).send("Please enter all the required information");
     }
 
-    // check if title already exists
-    const existingTitle = await Problem.findOne({ title }); //problem is coming from file Models
+    //testcases is received as a JSON string, parse it into an array
+    const parsedTestcases = JSON.parse(testcases);
+
+    const existingTitle = await Problem.findOne({ title });
     if (existingTitle) {
       return res.status(200).send("Title already exists!");
     }
-    // save the problem in DB
+
     const newproblem = await Problem.create({
       title,
       description,
       difficulty,
+      testcases: parsedTestcases,
     });
     res.status(200).json({
       message: "You have successfully created the problem!",
@@ -154,6 +162,7 @@ app.post("/createproblem", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send("An error occurred while creating the problem.");
   }
 });
 
@@ -170,13 +179,26 @@ app.get("/getProblem/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.put("/updateProblem/:id", (req, res) => {
+app.put("/updateProblem/:id", async (req, res) => {
   const id = req.params.id;
-  const { title, description, difficulty } = req.body;
+  const { title, description, difficulty, testcases } = req.body;
 
-  Problem.findByIdAndUpdate({ _id: id }, { title, description, difficulty })
-    .then((problems) => res.json(problems))
-    .catch((err) => res.json(err));
+  try {
+    const updatedProblem = await Problem.findByIdAndUpdate(
+      id,
+      { title, description, difficulty, testcases },
+      { new: true }
+    );
+
+    if (!updatedProblem) {
+      return res.status(404).send("Problem not found");
+    }
+
+    res.json(updatedProblem);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occurred while updating the problem.");
+  }
 });
 
 app.delete("/deleteProblem/:id", (req, res) => {
@@ -187,32 +209,39 @@ app.delete("/deleteProblem/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
+//Compiler Part
+
 app.post("/run", async (req, res) => {
-  const { language = "cpp", code } = req.body;
+  const { language = "cpp", code, input } = req.body;
   if (code === undefined) {
     return res.status(404).json({ success: false, error: "Empty code!" });
   }
 
   try {
     let filePath;
+    let inputPath;
     let output;
 
     switch (language) {
       case "cpp":
         filePath = await generateCppFile(code);
-        output = await executeCpp(filePath);
+        inputPath = await generateInputFile(input);
+        output = await executeCpp(filePath, inputPath);
         break;
       case "java":
         filePath = await generateJavaFile(code);
-        output = await executeJava(filePath);
+        inputPath = await generateInputFile(input);
+        output = await executeJava(filePath, inputPath);
         break;
       case "py":
         filePath = await generatePythonFile(code);
-        output = await executePython(filePath);
+        inputPath = await generateInputFile(input);
+        output = await executePython(filePath, inputPath);
         break;
       case "c":
         filePath = await generateCFile(code);
-        output = await executeC(filePath);
+        inputPath = await generateInputFile(input);
+        output = await executeC(filePath, inputPath);
         break;
       default:
         return res
@@ -220,9 +249,9 @@ app.post("/run", async (req, res) => {
           .json({ success: false, error: "Unsupported language!" });
     }
 
-    res.json({ filePath, output });
+    res.json({ filePath, inputPath, output });
   } catch (error) {
-    res.status(500).json({ error: error });
+    res.status(500).json({ error: JSON.stringify(error) });
   }
 });
 

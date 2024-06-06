@@ -43,7 +43,11 @@ const Problems = () => {
               {Problems.map((problem) => {
                 return (
                   <tr key={problem._id}>
-                    <td>{problem.title}</td>
+                    <td>
+                      <Link to={`compiler/${problem._id}`}>
+                        {problem.title}
+                      </Link>
+                    </td>
                     <td>{problem.description}</td>
                     <td>{problem.difficulty}</td>
                     <td>

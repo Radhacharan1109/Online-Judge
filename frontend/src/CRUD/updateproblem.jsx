@@ -1,13 +1,14 @@
-import React,{useState,useEffect} from "react";
-import { useParams,useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const UpdateProblem = () => {
-  const {id}= useParams();
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     difficulty: "",
+    testcases: [],
   });
 
   const handleChange = (e) => {
@@ -18,24 +19,37 @@ const UpdateProblem = () => {
     });
   };
 
+  const handleTestcaseChange = (e, index) => {
+    const { name, value } = e.target;
+    const updatedTestcases = [...formData.testcases];
+    updatedTestcases[index][name] = value;
+    setFormData({
+      ...formData,
+      testcases: updatedTestcases,
+    });
+  };
+
   useEffect(() => {
     axios
-      .get("http://localhost:5000/getProblem/"+id)
+      .get("http://localhost:5000/getProblem/" + id)
       .then((result) => setFormData(result.data))
-      .catch((err) => console.log(err))
-  }, []);
+      .catch((err) => console.log(err));
+  }, [id]);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put("http://localhost:5000/updateProblem/"+id, formData);//put for updation
-      console.log('Updation successful:', response.data);
-      // Redirect 
+      const response = await axios.put(
+        "http://localhost:5000/updateProblem/" + id,
+        formData
+      );
+      console.log("Updation successful:", response.data);
+      // Redirect
       navigate("/home");
     } catch (error) {
-      console.error('Error updating:', error);
+      console.error("Error updating:", error);
     }
   };
 
@@ -46,7 +60,9 @@ const UpdateProblem = () => {
           <form onSubmit={handleSubmit}>
             <h2 className="card-title">Update Problem</h2>
             <div className="mb-3">
-              <label htmlFor="title" className="form-label">Title</label>
+              <label htmlFor="title" className="form-label">
+                Title
+              </label>
               <input
                 type="text"
                 id="title"
@@ -59,7 +75,9 @@ const UpdateProblem = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="description" className="form-label">Description</label>
+              <label htmlFor="description" className="form-label">
+                Description
+              </label>
               <input
                 type="text"
                 id="description"
@@ -72,17 +90,61 @@ const UpdateProblem = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="difficulty" className="form-label">Difficulty</label>
-              <input
-                type="text"
+              <label htmlFor="difficulty" className="form-label">
+                Difficulty
+              </label>
+              <select
                 id="difficulty"
                 name="difficulty"
-                placeholder="Enter Difficulty"
-                className="form-control"
+                className="form-select"
                 value={formData.difficulty}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Difficulty
+                </option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+            <div>
+              <h4>Test Cases</h4>
+              {formData.testcases.map((testcase, index) => (
+                <div key={index}>
+                  <div className="mb-3">
+                    <label htmlFor={`input${index}`} className="form-label">
+                      Input
+                    </label>
+                    <input
+                      type="text"
+                      id={`input${index}`}
+                      name="input"
+                      placeholder="Enter Input"
+                      className="form-control"
+                      value={testcase.input}
+                      onChange={(e) => handleTestcaseChange(e, index)}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor={`output${index}`} className="form-label">
+                      Output
+                    </label>
+                    <input
+                      type="text"
+                      id={`output${index}`}
+                      name="output"
+                      placeholder="Enter Output"
+                      className="form-control"
+                      value={testcase.output}
+                      onChange={(e) => handleTestcaseChange(e, index)}
+                      required
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
             <button className="btn btn-success">Update</button>
           </form>
@@ -90,7 +152,6 @@ const UpdateProblem = () => {
       </div>
     </div>
   );
-  
 };
 
 export default UpdateProblem;
