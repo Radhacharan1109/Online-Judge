@@ -10,12 +10,13 @@ const Compiler = () => {
   const [formData, setFormData] = useState({
     language: "cpp",
     code: "",
-    input: "", // Include input field in form data
+    input: "",
     output: "",
     loading: false,
     error: "",
   });
   const [activeTab, setActiveTab] = useState("input"); // State to track active tab
+  const [verdict, setVerdict] = useState({ loading: false, overallVerdict: null, testResults: [] }); 
 
   useEffect(() => {
     const fetchProblem = async () => {
@@ -76,9 +77,18 @@ const Compiler = () => {
     }
   };
 
-  const handleVerdict = () => {
-    // click the verdict tab button
-    verdictTabRef.current.click();
+  const handleVerdict = async () => {
+    try {
+      setVerdict({ ...verdict,loading: true });
+      const response = await axios.post("http://localhost:5000/verdict/" + id, {
+        code: formData.code,
+        language: formData.language,
+      });
+      setVerdict({ ...response.data,loading: false });
+      verdictTabRef.current.click();
+    } catch (error) {
+      console.error("Error fetching verdict:", error);
+    }
   };
 
   const toggleTab = (tabName) => {
@@ -168,11 +178,7 @@ const Compiler = () => {
                   <textarea
                     className="form-control"
                     rows={5}
-                    placeholder={
-                      formData.language === "py"
-                        ? "For Python, write different inputs on different lines..."
-                        : "Enter input here..."
-                    }
+                    placeholder={"Enter input here..."}
                     value={formData.input}
                     onChange={handleChange}
                     name="input"
@@ -193,18 +199,27 @@ const Compiler = () => {
                     )}
                   </div>
                 )}
-
-                {activeTab === "verdict" && (
-                  <div className="verdict">
-                    {/*content for verdict here */}
-                  </div>
-                )}
+{activeTab === "verdict" && verdict && (
+  <div className="verdict">
+    <div className={`alert ${verdict.overallVerdict ? 'alert-success' : 'alert-danger'}`}>
+      {verdict.overallVerdict ? 'Success' : 'Failed'}
+    </div>
+    {!verdict.overallVerdict && verdict.testResults.length > 0 && (
+      <div className="alert alert-danger">
+        Last Failed Test Case:<br />
+        Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
+        Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
+        Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
+      </div>
+    )}
+  </div>
+)}
               </div>
             </div>
           </div>
 
-          {/* Compile Button */}
           <div className="mb-3">
+            {/* Compile Button */}
             <button
               type="submit"
               className="btn btn-primary me-2"
@@ -229,8 +244,20 @@ const Compiler = () => {
               type="button"
               className="btn btn-success"
               onClick={handleVerdict}
+              disabled={verdict.loading}
             >
-              Submit
+              {verdict.loading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>{" "}
+                  Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </div>

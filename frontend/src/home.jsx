@@ -8,10 +8,10 @@ import Compiler from "./compiler";
 const Home = () => {
   return (
     <Routes>
-      <Route path="compiler/:id" element={<Compiler />} />
-      <Route path="create" element={<CreateProblem />} />
-      <Route path="update/:id" element={<UpdateProblem />} />
-      <Route path="problems" element={<Problems />} />
+      <Route path="/compiler/:id" element={<Compiler />} />
+      <Route path="/create" element={<CreateProblem />} />
+      <Route path="/update/:id" element={<UpdateProblem />} />
+      <Route path="/problems" element={<Problems />} />
       <Route path="/" element={<Problems />} /> {/*Default Route*/}
     </Routes>
   );
