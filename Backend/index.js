@@ -41,6 +41,7 @@ app.use(
     credentials: true, // This is important for sending cookies
   })
 );
+
 // Authentication check endpoint
 app.get("/checkAuth", authenticateToken, (req, res) => {
   res.status(200).json({ message: "Authenticated" });
@@ -135,6 +136,17 @@ app.post("/login", async (req, res) => {
     console.log(error.message);
   }
 });
+
+app.post("/logout", (req, res) => {
+  // Clear the token cookie by setting its expiration date to a past time
+  res.cookie("token", "", {
+    expires: new Date(0),
+    httpOnly: true,
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+});
+
 
 //CRUD OPERATIONS For Problems
 

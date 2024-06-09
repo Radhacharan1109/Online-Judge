@@ -10,14 +10,14 @@ if (!fs.existsSync(outputPath)) {
 
 // Function to create subdirectories for each language
 const createLanguageOutputDir = (language) => {
-    const langDir = path.join(outputPath, language);
-    if (!fs.existsSync(langDir)) {
-      fs.mkdirSync(langDir);
-    }
-    return langDir;
-  };
+  const langDir = path.join(outputPath, language);
+  if (!fs.existsSync(langDir)) {
+    fs.mkdirSync(langDir);
+  }
+  return langDir;
+};
 
-const executeCpp = (filePath,inputPath) => {
+const executeCpp = (filePath, inputPath) => {
   const jobId = path.basename(filePath).split(".")[0];
   const outDir = createLanguageOutputDir('cpp');
   const outPath = path.join(outDir, `${jobId}.exe`);
@@ -26,47 +26,41 @@ const executeCpp = (filePath,inputPath) => {
     const command = `g++ "${filePath}" -o "${outPath}" && cd "${outDir}" && .\\${jobId}.exe < "${inputPath}"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stderr });
+        reject(stderr || error.message); // Return stderr if available, otherwise error.message
+      } else {
+        resolve(stdout);
       }
-      if (stderr) {
-        reject(stderr);
-      }
-      resolve(stdout);
     });
   });
 };
 
-const executeJava = (filePath,inputPath) => {
+const executeJava = (filePath, inputPath) => {
   return new Promise((resolve, reject) => {
     const runCommand = `java "${filePath}" < "${inputPath}"`;
     exec(runCommand, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stderr });
+        reject(stderr || error.message);
+      } else {
+        resolve(stdout);
       }
-      if (stderr) {
-        reject(stderr);
-      }
-      resolve(stdout);
     });
   });
 };
 
-const executePython = (filePath,inputPath) => {
+const executePython = (filePath, inputPath) => {
   return new Promise((resolve, reject) => {
     const command = `python "${filePath}" < "${inputPath}"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stderr });
+        reject(stderr || error.message);
+      } else {
+        resolve(stdout);
       }
-      if (stderr) {
-        reject(stderr);
-      }
-      resolve(stdout);
     });
   });
 };
 
-const executeC = (filePath,inputPath) => {
+const executeC = (filePath, inputPath) => {
   const jobId = path.basename(filePath).split(".")[0];
   const outDir = createLanguageOutputDir('c');
   const outPath = path.join(outDir, `${jobId}.exe`);
@@ -75,12 +69,10 @@ const executeC = (filePath,inputPath) => {
     const command = `gcc "${filePath}" -o "${outPath}" && cd "${outDir}" && .\\${jobId}.exe < "${inputPath}"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stderr });
+        reject(stderr || error.message);
+      } else {
+        resolve(stdout);
       }
-      if (stderr) {
-        reject(stderr);
-      }
-      resolve(stdout);
     });
   });
 };

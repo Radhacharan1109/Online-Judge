@@ -79,15 +79,22 @@ const Compiler = () => {
 
   const handleVerdict = async () => {
     try {
-      setVerdict({ ...verdict,loading: true });
+      setVerdict({ ...verdict, loading: true });
       const response = await axios.post("http://localhost:5000/verdict/" + id, {
         code: formData.code,
         language: formData.language,
       });
-      setVerdict({ ...response.data,loading: false });
+      setVerdict({ ...response.data, loading: false });
       verdictTabRef.current.click();
     } catch (error) {
       console.error("Error fetching verdict:", error);
+      setVerdict({
+        loading: false,
+        overallVerdict: null,
+        testResults: [],
+        error: error.response ? error.response.data.error : "An error occurred while compiling the code.",
+      });
+      verdictTabRef.current.click();
     }
   };
 
@@ -199,21 +206,38 @@ const Compiler = () => {
                     )}
                   </div>
                 )}
-{activeTab === "verdict" && verdict && (
+{activeTab === "verdict" && (
   <div className="verdict">
-    <div className={`alert ${verdict.overallVerdict ? 'alert-success' : 'alert-danger'}`}>
-      {verdict.overallVerdict ? 'Success' : 'Failed'}
-    </div>
-    {!verdict.overallVerdict && verdict.testResults.length > 0 && (
-      <div className="alert alert-danger">
-        Last Failed Test Case:<br />
-        Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
-        Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
-        Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
+    {verdict.loading ? (
+      <div>Loading...</div>
+    ) : (
+      <div>
+        {verdict.error ? (
+          <div className="alert alert-danger">{verdict.error}</div>
+        ) : (
+          <div>
+            {verdict.overallVerdict !== null ? (
+              <div className={`alert ${verdict.overallVerdict ? "alert-success" : "alert-danger"}`}>
+                {verdict.overallVerdict ? "Success" : "Failed"}
+              </div>
+            ) : (
+              <div className="alert alert-warning">Error compiling, check the code by running it first.</div>
+            )}
+            {!verdict.overallVerdict && verdict.testResults.length > 0 && (
+              <div className="alert alert-danger">
+                Failed Test Case:<br />
+                Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
+                Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
+                Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     )}
   </div>
 )}
+
               </div>
             </div>
           </div>
@@ -236,7 +260,7 @@ const Compiler = () => {
                   Compiling...
                 </>
               ) : (
-                "Compile"
+                "Run"
               )}
             </button>
             {/* Submit Button */}

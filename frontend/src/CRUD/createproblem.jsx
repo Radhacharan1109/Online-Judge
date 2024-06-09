@@ -56,7 +56,7 @@ const CreateProblem = () => {
 
   return (
     <div className="container vh-100 d-flex justify-content-center align-items-center">
-      <div className="card w-50">
+      <div className="card w-50" style={{ maxHeight: "90vh", overflowY: "auto" }}>
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             <h2 className="card-title">Add Problem</h2>
