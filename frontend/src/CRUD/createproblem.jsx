@@ -37,6 +37,14 @@ const CreateProblem = () => {
     });
   };
 
+  const deleteTestcase = (index) => {
+    const updatedTestcases = formData.testcases.filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      testcases: updatedTestcases,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -55,8 +63,8 @@ const CreateProblem = () => {
   };
 
   return (
-    <div className="container vh-100 d-flex justify-content-center align-items-center">
-      <div className="card w-50" style={{ maxHeight: "90vh", overflowY: "auto" }}>
+    <div className="container mt-5 pt-5">
+      <div className="card">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             <h2 className="card-title">Add Problem</h2>
@@ -79,8 +87,7 @@ const CreateProblem = () => {
               <label htmlFor="description" className="form-label">
                 Description
               </label>
-              <input
-                type="text"
+              <textarea
                 id="description"
                 name="description"
                 placeholder="Enter Description"
@@ -113,7 +120,7 @@ const CreateProblem = () => {
             <div>
               <h4>Test Cases</h4>
               {formData.testcases.map((testcase, index) => (
-                <div key={index}>
+                <div key={index} className="mb-4">
                   <div className="mb-3">
                     <label htmlFor={`input${index}`} className="form-label">
                       Input
@@ -144,6 +151,13 @@ const CreateProblem = () => {
                       required
                     />
                   </div>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => deleteTestcase(index)}
+                  >
+                    Delete Test Case
+                  </button>
                 </div>
               ))}
               <button
@@ -154,7 +168,7 @@ const CreateProblem = () => {
                 Add Test Case
               </button>
             </div>
-            <button className="btn btn-success mt-3">Submit</button>
+            <button className="btn btn-success mt-4">Submit</button>
           </form>
         </div>
       </div>

@@ -29,6 +29,21 @@ const UpdateProblem = () => {
     });
   };
 
+  const handleDeleteTestcase = (index) => {
+    const updatedTestcases = formData.testcases.filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      testcases: updatedTestcases,
+    });
+  };
+
+  const addTestcase = () => {
+    setFormData({
+      ...formData,
+      testcases: [...formData.testcases, { input: "", output: "" }],
+    });
+  };
+
   useEffect(() => {
     axios
       .get("http://localhost:5000/getProblem/" + id)
@@ -54,8 +69,8 @@ const UpdateProblem = () => {
   };
 
   return (
-    <div className="container vh-100 d-flex justify-content-center align-items-center">
-      <div className="card w-50" style={{ maxHeight: "90vh", overflowY: "auto" }}>
+    <div className="container mt-5 pt-5">
+      <div className="card">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             <h2 className="card-title">Update Problem</h2>
@@ -78,8 +93,7 @@ const UpdateProblem = () => {
               <label htmlFor="description" className="form-label">
                 Description
               </label>
-              <input
-                type="text"
+              <textarea
                 id="description"
                 name="description"
                 placeholder="Enter Description"
@@ -112,7 +126,7 @@ const UpdateProblem = () => {
             <div>
               <h4>Test Cases</h4>
               {formData.testcases.map((testcase, index) => (
-                <div key={index}>
+                <div key={index} className="mb-4">
                   <div className="mb-3">
                     <label htmlFor={`input${index}`} className="form-label">
                       Input
@@ -143,10 +157,24 @@ const UpdateProblem = () => {
                       required
                     />
                   </div>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => handleDeleteTestcase(index)}
+                  >
+                    Delete Test Case
+                  </button>
                 </div>
               ))}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={addTestcase}
+              >
+                Add Test Case
+              </button>
             </div>
-            <button className="btn btn-success">Update</button>
+            <button className="btn btn-success mt-4">Update</button>
           </form>
         </div>
       </div>

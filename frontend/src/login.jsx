@@ -24,7 +24,7 @@ const LoginForm = () => {
         "http://localhost:5000/login",
         formData,
         {
-          withCredentials: true, 
+          withCredentials: true,
         }
       );
       console.log("Login successful:", response.data);
@@ -36,9 +36,9 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="container d-flex align-items-center justify-content-center vh-100">
-      <div className="card p-4 w-50">
-        <h2 className="card-title text-center">Login</h2>
+    <div className="container-fluid d-flex align-items-center justify-content-center vh-100 bg-light">
+      <div className="card p-4 w-25 shadow">
+        <h2 className="card-title text-center mb-4">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Email:</label>
@@ -72,9 +72,11 @@ const LoginForm = () => {
           <Link to="/register">Register Here</Link>
         </div>
       </div>
+      <div className="position-absolute top-0 start-50 translate-middle-x">
+        <h1 className="display-1 fw-bold text-danger">CodeLane</h1>
+      </div>
     </div>
   );
 };
 
 export default LoginForm;
-

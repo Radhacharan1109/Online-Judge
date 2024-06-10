@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const RegisterForm = () => {
@@ -16,13 +16,15 @@ const RegisterForm = () => {
       [name]: value,
     });
   };
-  const navigate=useNavigate();
+
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/register', formData);
       console.log('Registration successful:', response.data);
-      // Redirect 
+      // Redirect
       navigate("/login");
     } catch (error) {
       console.error('Error registering:', error);
@@ -30,8 +32,8 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="container d-flex align-items-center justify-content-center vh-100">
-      <div className="card p-4 w-50">
+    <div className="container-fluid d-flex align-items-center justify-content-center vh-100 bg-light">
+      <div className="card p-4 w-25 shadow">
         <h2 className="card-title text-center">Register</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -72,6 +74,12 @@ const RegisterForm = () => {
           </div>
           <button type="submit" className="btn btn-primary w-100">Register</button>
         </form>
+        <div className="mt-3 text-center">
+          <Link to="/login">Already have an account? Login here</Link>
+        </div>
+      </div>
+      <div className="position-absolute top-0 start-50 translate-middle-x">
+        <h1 className="display-1 fw-bold text-danger">CodeLane</h1>
       </div>
     </div>
   );
