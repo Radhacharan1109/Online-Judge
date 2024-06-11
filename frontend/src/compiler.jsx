@@ -50,7 +50,7 @@ const Compiler = () => {
     });
 
     try {
-      const response = await axios.post("http://localhost:5000/run", {
+      const response = await axios.post("http://localhost:8000/run", {
         language: formData.language,
         code: formData.code,
         input: formData.input, // Include input data
@@ -80,7 +80,7 @@ const Compiler = () => {
   const handleVerdict = async () => {
     try {
       setVerdict({ ...verdict, loading: true });
-      const response = await axios.post("http://localhost:5000/verdict/" + id, {
+      const response = await axios.post("http://localhost:8000/verdict/" + id, {
         code: formData.code,
         language: formData.language,
       });
