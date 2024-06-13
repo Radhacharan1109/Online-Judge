@@ -4,10 +4,14 @@ import axios from "axios";
 
 const Problems = () => {
   const [problems, setProblems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState({
+    title: "",
+    difficulty: "",
+  });
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/readproblems")
+      .get(`${import.meta.env.VITE_URL1}/readproblems`)
       .then((result) => setProblems(result.data))
       .catch((err) => console.log(err));
   }, []);
@@ -15,49 +19,74 @@ const Problems = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        "http://localhost:5000/deleteProblem/" + id
+        `${import.meta.env.VITE_URL1}/deleteProblem/` + id
       );
       console.log("Deletion successful:", response.data);
-      // Removing the problem from the state instead of reloading the page as it may take some time
       setProblems(problems.filter((problem) => problem._id !== id));
     } catch (error) {
       console.error("Error deleting:", error);
     }
   };
 
+  const filteredProblems = problems.filter((problem) => {
+    return (
+      problem.title.toLowerCase().includes(searchQuery.title.toLowerCase()) &&
+      (searchQuery.difficulty === "" || problem.difficulty.toLowerCase() === searchQuery.difficulty.toLowerCase())
+    );
+  });
+
   return (
     <div className="container-fluid vh-100 d-flex flex-column align-items-center">
       <div className="w-100 my-4">
-        <table className="table table-hover table-bordered" style={{ maxHeight: "70vh", overflowY: "auto" }}>
+        <div className="mb-3 d-flex justify-content-start">
+          <input
+            type="text"
+            placeholder="Search by title"
+            value={searchQuery.title}
+            onChange={(e) => setSearchQuery({ ...searchQuery, title: e.target.value })}
+            className="form-control me-2"
+            style={{ maxWidth: "300px" }}
+          />
+          <select
+            value={searchQuery.difficulty}
+            onChange={(e) => setSearchQuery({ ...searchQuery, difficulty: e.target.value })}
+            className="form-control"
+            style={{ maxWidth: "300px" }}
+          >
+            <option value="">All Difficulties</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <table className="table table-hover table-bordered">
           <thead className="table-dark">
             <tr>
+              <th>S.No.</th>
               <th>Title</th>
-              <th>Description</th>
+              <th style={{ width: "700px" }}>Description</th>
               <th>Difficulty</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {problems.map((problem) => (
+            {filteredProblems.map((problem, index) => (
               <tr key={problem._id}>
-                <td>
-                  <Link to={`compiler/${problem._id}`} >
-                    {problem.title}
-                  </Link>
+                <td>{index + 1}</td>
+                <td style={{ maxWidth: "100px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <Link to={`compiler/${problem._id}`}>{problem.title}</Link>
                 </td>
-                <td>{problem.description}</td>
+                <td style={{ maxWidth: "700px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ width: "100%", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {problem.description}
+                  </div>
+                </td>
                 <td>{problem.difficulty}</td>
                 <td>
-                  <Link
-                    to={`update/${problem._id}`}
-                    className="btn btn-warning me-2"
-                  >
+                  <Link to={`update/${problem._id}`} className="btn btn-warning me-2">
                     Update
                   </Link>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDelete(problem._id)}
-                  >
+                  <button className="btn btn-danger" onClick={() => handleDelete(problem._id)}>
                     Delete
                   </button>
                 </td>

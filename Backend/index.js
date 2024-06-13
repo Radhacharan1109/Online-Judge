@@ -26,6 +26,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.json({ online: 'backend' });
+});
+
 // Authentication check endpoint
 app.get("/checkAuth", authenticateToken, (req, res) => {
   res.status(200).json({ message: "Authenticated" });
@@ -120,6 +124,20 @@ app.post("/login", async (req, res) => {
     console.log(error.message);
   }
 });
+
+app.get("/profile", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password -token");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 app.post("/logout", (req, res) => {
   // Clear the token cookie by setting its expiration date to a past time

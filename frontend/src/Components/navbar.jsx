@@ -7,7 +7,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/logout", {}, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_URL1}/logout`, {}, { withCredentials: true });
       navigate("/login"); // Redirect to login page after logout
     } catch (error) {
       console.error("Error logging out:", error);
@@ -31,6 +31,9 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/home/profile">Profile</Link>
+            </li>
             <li className="nav-item">
               <Link className="nav-link" to="/home/problems">Problem List</Link>
             </li>

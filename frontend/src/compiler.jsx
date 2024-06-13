@@ -22,7 +22,7 @@ const Compiler = () => {
     const fetchProblem = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/getProblem/" + id
+          `${import.meta.env.VITE_URL1}/getProblem/` + id
         );
         setProblem(response.data);
       } catch (error) {
@@ -50,7 +50,7 @@ const Compiler = () => {
     });
 
     try {
-      const response = await axios.post("http://localhost:8000/run", {
+      const response = await axios.post(`${import.meta.env.VITE_URL2}/run`, {
         language: formData.language,
         code: formData.code,
         input: formData.input, // Include input data
@@ -65,7 +65,7 @@ const Compiler = () => {
       outputTabRef.current.click();
     } catch (err) {
       const errorMsg = err.response
-        ? JSON.stringify(err.response.data)
+        ? err.response?.data?.error
         : "An error occurred while compiling the code.";
       setFormData({
         ...formData,
@@ -80,7 +80,7 @@ const Compiler = () => {
   const handleVerdict = async () => {
     try {
       setVerdict({ ...verdict, loading: true });
-      const response = await axios.post("http://localhost:8000/verdict/" + id, {
+      const response = await axios.post(`${import.meta.env.VITE_URL2}/verdict/` + id, {
         code: formData.code,
         language: formData.language,
       });
@@ -92,7 +92,7 @@ const Compiler = () => {
         loading: false,
         overallVerdict: null,
         testResults: [],
-        error: error.response ? error.response.data.error : "An error occurred while compiling the code.",
+        error: error.response ? error.response?.data?.error : "An error occurred while compiling the code.",
       });
       verdictTabRef.current.click();
     }
@@ -107,11 +107,16 @@ const Compiler = () => {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ minHeight: "100vh" }}>
       <div className="row">
         <div className="col-md-6">
           <h2>{problem.title}</h2>
-          <p>{problem.description}</p>
+          <textarea
+           className="form-control"
+           rows={5} 
+           readOnly // make the textarea read-only
+          value={problem.description}
+          />
         </div>
 
         <div className="col-md-6">
@@ -214,30 +219,25 @@ const Compiler = () => {
       <div>
         {verdict.error ? (
           <div className="alert alert-danger">{verdict.error}</div>
+        ) : verdict.overallVerdict !== null ? (
+          <div className={`alert ${verdict.overallVerdict ? "alert-success" : "alert-danger"}`}>
+            {verdict.overallVerdict ? "Success" : "Failed"}
+          </div>
         ) : (
-          <div>
-            {verdict.overallVerdict !== null ? (
-              <div className={`alert ${verdict.overallVerdict ? "alert-success" : "alert-danger"}`}>
-                {verdict.overallVerdict ? "Success" : "Failed"}
-              </div>
-            ) : (
-              <div className="alert alert-warning">Error compiling, check the code by running it first.</div>
-            )}
-            {!verdict.overallVerdict && verdict.testResults.length > 0 && (
-              <div className="alert alert-danger">
-                Failed Test Case:<br />
-                Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
-                Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
-                Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
-              </div>
-            )}
+          <pre>Verdict will appear here...</pre>
+        )}
+        {!verdict.overallVerdict && verdict.testResults.length > 0 && (
+          <div className="alert alert-danger">
+            <strong>Failed Test Case:</strong><br />
+            Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
+            Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
+            Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
           </div>
         )}
       </div>
     )}
   </div>
 )}
-
               </div>
             </div>
           </div>
@@ -246,7 +246,7 @@ const Compiler = () => {
             {/* Compile Button */}
             <button
               type="submit"
-              className="btn btn-primary me-2"
+              className="btn btn-warning me-2"
               disabled={formData.loading}
               onClick={handleCompile}
             >

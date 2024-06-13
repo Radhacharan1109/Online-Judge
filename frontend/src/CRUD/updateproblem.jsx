@@ -46,7 +46,7 @@ const UpdateProblem = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/getProblem/" + id)
+      .get(`${import.meta.env.VITE_URL1}/getProblem/` + id)
       .then((result) => setFormData(result.data))
       .catch((err) => console.log(err));
   }, [id]);
@@ -57,7 +57,7 @@ const UpdateProblem = () => {
     e.preventDefault();
     try {
       const response = await axios.put(
-        "http://localhost:5000/updateProblem/" + id,
+        `${import.meta.env.VITE_URL1}/updateProblem/` + id,
         formData
       );
       console.log("Updation successful:", response.data);
@@ -69,7 +69,7 @@ const UpdateProblem = () => {
   };
 
   return (
-    <div className="container mt-5 pt-5">
+    <div className="container mt-5 pt-5" style={{ minHeight: "100vh" }}>
       <div className="card">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
@@ -86,6 +86,7 @@ const UpdateProblem = () => {
                 className="form-control"
                 value={formData.title}
                 onChange={handleChange}
+                maxLength={40}
                 required
               />
             </div>

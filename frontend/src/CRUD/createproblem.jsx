@@ -51,7 +51,7 @@ const CreateProblem = () => {
       // Stringify the testcases array before sending it to the server
       const testcasesString = JSON.stringify(formData.testcases);
       const response = await axios.post(
-        "http://localhost:5000/createproblem",
+        `${import.meta.env.VITE_URL1}/createproblem`,
         { ...formData, testcases: testcasesString }
       );
       console.log("Problem creation successful:", response.data);
@@ -63,7 +63,7 @@ const CreateProblem = () => {
   };
 
   return (
-    <div className="container mt-5 pt-5">
+    <div className="container mt-5 pt-5" style={{ minHeight: "100vh" }}>
       <div className="card">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
@@ -80,6 +80,7 @@ const CreateProblem = () => {
                 className="form-control"
                 value={formData.title}
                 onChange={handleChange}
+                maxLength={40}
                 required
               />
             </div>

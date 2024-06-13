@@ -39,6 +39,10 @@ app.use(
 
 //Compiler Part
 
+app.get("/", (req, res) => {
+  res.json({ online: 'compiler' });
+});
+
 app.post("/run", async (req, res) => {
   const { language = "cpp", code, input } = req.body;
   if (code === undefined) {

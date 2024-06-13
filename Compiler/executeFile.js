@@ -23,7 +23,8 @@ const executeCpp = (filePath, inputPath) => {
   const outPath = path.join(outDir, `${jobId}.exe`);
 
   return new Promise((resolve, reject) => {
-    const command = `g++ "${filePath}" -o "${outPath}" && cd "${outDir}" && .\\${jobId}.exe < "${inputPath}"`;
+    //changing the command because docker environment is unix like
+    const command = `g++ "${filePath}" -o "${outPath}" && cd "${outDir}" && ./${jobId}.exe < "${inputPath}"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
         reject(stderr || error.message); // Return stderr if available, otherwise error.message
@@ -66,7 +67,8 @@ const executeC = (filePath, inputPath) => {
   const outPath = path.join(outDir, `${jobId}.exe`);
 
   return new Promise((resolve, reject) => {
-    const command = `gcc "${filePath}" -o "${outPath}" && cd "${outDir}" && .\\${jobId}.exe < "${inputPath}"`;
+    //changing the command because docker environment is unix like
+    const command = `gcc "${filePath}" -o "${outPath}" && cd "${outDir}" && ./${jobId}.exe < "${inputPath}"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
         reject(stderr || error.message);
