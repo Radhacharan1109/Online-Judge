@@ -4,6 +4,7 @@ import Navbar from "./Components/navbar";
 import CreateProblem from "./CRUD/createproblem";
 import UpdateProblem from "./CRUD/updateproblem";
 import Profile from "./profile";
+import SubmissionTable from "./submissiontable";
 import Problems from "./CRUD/problems";
 import Compiler from "./compiler";
 
@@ -18,6 +19,7 @@ const Home = () => {
           <Route path="/update/:id" element={<UpdateProblem />} />
           <Route path="/problems" element={<Problems />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/submissions" element={<SubmissionTable />} />
           <Route path="/" element={<Problems />} /> {/* Default Route */}
         </Routes>
       </div>

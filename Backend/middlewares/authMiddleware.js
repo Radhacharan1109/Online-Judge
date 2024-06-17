@@ -3,7 +3,6 @@ const User = require("../Models/User");
 
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.token; // Get token from cookies
-    console.log(`token: ${token}`);
     if (!token) {
         return res.status(401).json({ message: "Authentication token missing" });
     }

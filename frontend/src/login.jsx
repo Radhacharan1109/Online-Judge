@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -8,6 +8,19 @@ const LoginForm = () => {
     password: "",
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get(`${import.meta.env.VITE_URL1}/checkAuth`, { withCredentials: true });
+        navigate("/home");
+      } catch (error) {
+        // Not authenticated, continue with login
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +49,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="container-fluid d-flex align-items-center justify-content-center vh-100 " style={{ backgroundColor: 'lightpink'}}>
+    <div className="container-fluid d-flex align-items-center justify-content-center vh-100" style={{ backgroundColor: 'lightpink'}}>
       <div className="card p-4 w-25 shadow">
         <h2 className="card-title text-center mb-4">Login</h2>
         <form onSubmit={handleSubmit}>

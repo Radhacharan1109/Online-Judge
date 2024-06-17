@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,6 +9,21 @@ const RegisterForm = () => {
     password: '',
   });
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get(`${import.meta.env.VITE_URL1}/checkAuth`, { withCredentials: true });
+        navigate("/home"); 
+      } catch (error) {
+        // Not authenticated, continue with registration
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -17,14 +32,12 @@ const RegisterForm = () => {
     });
   };
 
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(`${import.meta.env.VITE_URL1}/register`, formData);
       console.log('Registration successful:', response.data);
-      // Redirect
+      // Redirect to login page after successful registration
       navigate("/login");
     } catch (error) {
       console.error('Error registering:', error);
@@ -32,7 +45,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="container-fluid d-flex align-items-center justify-content-center vh-100 " style={{ backgroundColor: 'lightpink'}}>
+    <div className="container-fluid d-flex align-items-center justify-content-center vh-100" style={{ backgroundColor: 'lightpink'}}>
       <div className="card p-4 w-25 shadow">
         <h2 className="card-title text-center">Register</h2>
         <form onSubmit={handleSubmit}>

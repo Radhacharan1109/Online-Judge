@@ -40,6 +40,9 @@ const Navbar = () => {
             <li className="nav-item">
               <Link className="nav-link" to="/home/create">Create Problem</Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/home/submissions">Submissions</Link>
+            </li>
           </ul>
           <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
         </div>

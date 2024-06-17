@@ -5,6 +5,7 @@ const { DBConnection } = require("./Databases/database");
 const dotenv = require("dotenv");
 const User = require("./Models/User.js");
 const Problem = require("./Models/Problem.js");
+const Submission=require("./Models/Submission.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -125,7 +126,69 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", authenticateToken, async (req, res) => {
+//USER PROFILE
+
+// Update profile endpoint
+app.put("/updateprofile", authenticateToken, async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    if (!(username && email)) {
+      return res.status(400).send("Please enter all the information");
+    }
+
+    // Find the current user
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the username already exist
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername && existingUsername._id.toString() !== req.user.id) {
+      return res.status(409).json({ message: "Username already in use" });
+    }
+
+    // Check if the useremail already exist
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail && existingEmail._id.toString() !== req.user.id) {
+      return res.status(409).json({ message: "Email already in use" });
+    }    
+
+    // Update the user's information in the database
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { username, email },
+      { new: true, select: "-password -token" }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate a new token with the updated user information
+    const token = jwt.sign(
+      { id: updatedUser._id, email: updatedUser.email },
+      process.env.SECRET_KEY,
+      { expiresIn: "1d" }
+    );
+
+    // Send the new token as a cookie
+    const options = {
+      expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+
+    res.cookie("token", token, options);
+
+    // Return the updated user information
+    res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/viewprofile", authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password -token");
     if (!user) {
@@ -147,6 +210,37 @@ app.post("/logout", (req, res) => {
   });
 
   res.status(200).json({ message: "Logged out successfully" });
+});
+
+//SUBMISSIONS
+
+app.post("/addSubmission", async (req, res) => {
+  try {
+    const { username, problemTitle, language, submissionTime } = req.body;
+
+    const newSubmission = await Submission.create({
+      username,
+      problemTitle,
+      language,
+      submissionTime,
+    });
+
+    res.status(200).json({ message: "Submission added successfully", newSubmission });
+  } catch (error) {
+    console.error("Error adding submission:", error);
+    res.status(500).json({ message: "Failed to add submission" });
+  }
+});
+
+// Fetch all submissions
+app.get("/getSubmissions", async (req, res) => {
+  try {
+    const submissions = await Submission.find();
+    res.status(200).json(submissions);
+  } catch (error) {
+    console.error("Error fetching submissions:", error);
+    res.status(500).json({ message: "Failed to fetch submissions" });
+  }
 });
 
 

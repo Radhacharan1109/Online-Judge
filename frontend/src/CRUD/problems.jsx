@@ -59,41 +59,43 @@ const Problems = () => {
             <option value="hard">Hard</option>
           </select>
         </div>
-        <table className="table table-hover table-bordered">
-          <thead className="table-dark">
-            <tr>
-              <th>S.No.</th>
-              <th>Title</th>
-              <th style={{ width: "700px" }}>Description</th>
-              <th>Difficulty</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProblems.map((problem, index) => (
-              <tr key={problem._id}>
-                <td>{index + 1}</td>
-                <td style={{ maxWidth: "100px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  <Link to={`compiler/${problem._id}`}>{problem.title}</Link>
-                </td>
-                <td style={{ maxWidth: "700px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  <div style={{ width: "100%", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {problem.description}
-                  </div>
-                </td>
-                <td>{problem.difficulty}</td>
-                <td>
-                  <Link to={`update/${problem._id}`} className="btn btn-warning me-2">
-                    Update
-                  </Link>
-                  <button className="btn btn-danger" onClick={() => handleDelete(problem._id)}>
-                    Delete
-                  </button>
-                </td>
+        <div style={{ maxHeight: "550px", overflowY: "auto" }}>
+          <table className="table table-hover table-bordered">
+            <thead className="table-dark">
+              <tr>
+                <th>S.No.</th>
+                <th>Title</th>
+                <th style={{ width: "700px" }}>Description</th>
+                <th>Difficulty</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredProblems.map((problem, index) => (
+                <tr key={problem._id}>
+                  <td>{index + 1}</td>
+                  <td style={{ maxWidth: "100px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <Link to={`../compiler/${problem._id}`}>{problem.title}</Link>
+                  </td>
+                  <td style={{ maxWidth: "700px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ width: "100%", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {problem.description}
+                    </div>
+                  </td>
+                  <td>{problem.difficulty}</td>
+                  <td>
+                    <Link to={`update/${problem._id}`} className="btn btn-warning me-2">
+                      Update
+                    </Link>
+                    <button className="btn btn-danger" onClick={() => handleDelete(problem._id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ const ProtectedRoute = ({ element }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:5000/checkAuth", { withCredentials: true });
+        await axios.get(`${import.meta.env.VITE_URL1}/checkAuth`, { withCredentials: true });
         setIsAuthenticated(true);
       } catch (error) {
         setIsAuthenticated(false);

@@ -16,14 +16,13 @@ const Compiler = () => {
     error: "",
   });
   const [activeTab, setActiveTab] = useState("input"); // State to track active tab
-  const [verdict, setVerdict] = useState({ loading: false, overallVerdict: null, testResults: [] }); 
+  const [verdict, setVerdict] = useState({ loading: false, overallVerdict: null, testResults: [] });
+  const [username, setUsername] = useState(""); // State to store username
 
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_URL1}/getProblem/` + id
-        );
+        const response = await axios.get(`${import.meta.env.VITE_URL1}/getProblem/` + id);
         setProblem(response.data);
       } catch (error) {
         console.error("Error fetching problem:", error);
@@ -31,6 +30,18 @@ const Compiler = () => {
     };
     fetchProblem();
   }, [id]);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_URL1}/viewprofile`, { withCredentials: true });
+        setUsername(response.data.user.username);
+      } catch (error) {
+        console.error("Error fetching username:", error);
+      }
+    };
+    fetchUsername();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +64,7 @@ const Compiler = () => {
       const response = await axios.post(`${import.meta.env.VITE_URL2}/run`, {
         language: formData.language,
         code: formData.code,
-        input: formData.input, // Include input data
+        input: formData.input,
       });
       setFormData({
         ...formData,
@@ -61,7 +72,7 @@ const Compiler = () => {
         error: "",
         loading: false,
       });
-      // After compilation,click the output tab button
+      // After compilation, click the output tab button
       outputTabRef.current.click();
     } catch (err) {
       const errorMsg = err.response
@@ -86,6 +97,18 @@ const Compiler = () => {
       });
       setVerdict({ ...response.data, loading: false });
       verdictTabRef.current.click();
+
+      // If verdict is success, add submission to backend
+      if (response.data.overallVerdict) {
+        const submissionData = {
+          username: username,
+          problemTitle: problem.title,
+          language: formData.language,
+          submissionTime: new Date().toISOString(),
+        };
+        await axios.post(`${import.meta.env.VITE_URL1}/addSubmission`, submissionData);
+        console.log("Submission added successfully.");
+      }
     } catch (error) {
       console.error("Error fetching verdict:", error);
       setVerdict({
@@ -106,21 +129,33 @@ const Compiler = () => {
     return <div>Loading...</div>;
   }
 
+  // Extract the first test case for sample input and output
+  const sampleInput = problem.testcases.length > 0 ? problem.testcases[0].input : "";
+  const sampleOutput = problem.testcases.length > 0 ? problem.testcases[0].output : "";
+
   return (
     <div className="container mt-4" style={{ minHeight: "100vh" }}>
       <div className="row">
         <div className="col-md-6">
-          <h2>{problem.title}</h2>
+          <h1>{problem.title}</h1>
+          <br></br>
           <textarea
-           className="form-control"
-           rows={5} 
-           readOnly // make the textarea read-only
-          value={problem.description}
+            className="form-control"
+            rows={14}
+            readOnly 
+            value={problem.description}
           />
+          {problem.testcases.length>0 && (
+          <div className="mt-3">
+            <h5>Sample Input</h5>
+            <pre className="form-control" readOnly>{sampleInput}</pre>
+            <h5>Sample Output</h5>
+            <pre className="form-control" readOnly>{sampleOutput}</pre>
+          </div>)}
         </div>
 
         <div className="col-md-6">
-          <h1>Compiler</h1>
+          <h2>Compiler</h2>
 
           <div className="mb-3">
             <form onSubmit={handleCompile}>
@@ -211,33 +246,33 @@ const Compiler = () => {
                     )}
                   </div>
                 )}
-{activeTab === "verdict" && (
-  <div className="verdict">
-    {verdict.loading ? (
-      <div>Loading...</div>
-    ) : (
-      <div>
-        {verdict.error ? (
-          <div className="alert alert-danger">{verdict.error}</div>
-        ) : verdict.overallVerdict !== null ? (
-          <div className={`alert ${verdict.overallVerdict ? "alert-success" : "alert-danger"}`}>
-            {verdict.overallVerdict ? "Success" : "Failed"}
-          </div>
-        ) : (
-          <pre>Verdict will appear here...</pre>
-        )}
-        {!verdict.overallVerdict && verdict.testResults.length > 0 && (
-          <div className="alert alert-danger">
-            <strong>Failed Test Case:</strong><br />
-            Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
-            Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
-            Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
-          </div>
-        )}
-      </div>
-    )}
-  </div>
-)}
+                {activeTab === "verdict" && (
+                  <div className="verdict">
+                    {verdict.loading ? (
+                      <div>Loading...</div>
+                    ) : (
+                      <div>
+                        {verdict.error ? (
+                          <div className="alert alert-danger">{verdict.error}</div>
+                        ) : verdict.overallVerdict !== null ? (
+                          <div className={`alert ${verdict.overallVerdict ? "alert-success" : "alert-danger"}`}>
+                            {verdict.overallVerdict ? "Success" : "Failed"}
+                          </div>
+                        ) : (
+                          <pre>Verdict will appear here...</pre>
+                        )}
+                        {!verdict.overallVerdict && verdict.testResults.length > 0 && (
+                          <div className="alert alert-danger">
+                            <strong>Failed Test Case:</strong><br />
+                            Input: {verdict.testResults[verdict.testResults.length - 1].input}<br />
+                            Expected Output: {verdict.testResults[verdict.testResults.length - 1].expectedOutput}<br />
+                            Generated Output: {verdict.testResults[verdict.testResults.length - 1].generatedOutput}<br />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
