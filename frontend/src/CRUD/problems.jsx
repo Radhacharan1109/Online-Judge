@@ -26,7 +26,6 @@ const Problems = () => {
       setIsAdmin(response.data.isAdmin);
     } catch (error) {
       setIsAdmin(false);
-      console.error("Error checking admin status:", error);
     }
   };
 

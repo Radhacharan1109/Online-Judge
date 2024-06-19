@@ -143,7 +143,7 @@ const Compiler = () => {
   };
 
   if (!problem) {
-    return <div>Loading...</div>;
+    return <div style={{minHeight:"100vh"}}>Loading...</div>;
   }
 
   // Extract the first test case for sample input and output
