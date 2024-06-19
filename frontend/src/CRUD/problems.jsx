@@ -8,16 +8,36 @@ const Problems = () => {
     title: "",
     difficulty: "",
   });
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_URL1}/readproblems`)
       .then((result) => setProblems(result.data))
       .catch((err) => console.log(err));
+
+      fetchAdminStatus();
   }, []);
+
+  const fetchAdminStatus = async () => {
+    try {
+      // Make a request to check if the user is an admin
+      const response = await axios.get(`${import.meta.env.VITE_URL1}/checkAdmin`, { withCredentials: true });
+      setIsAdmin(response.data.isAdmin);
+    } catch (error) {
+      setIsAdmin(false);
+      console.error("Error checking admin status:", error);
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
+     const adminResponse = await axios.get(`${import.meta.env.VITE_URL1}/checkAdmin`, { withCredentials: true });
+    
+     if (!adminResponse.data.isAdmin) {
+      alert("Access denied. You must be an admin to delete problems.");
+      return;
+     }
       const response = await axios.delete(
         `${import.meta.env.VITE_URL1}/deleteProblem/` + id
       );
@@ -67,7 +87,7 @@ const Problems = () => {
                 <th>Title</th>
                 <th style={{ width: "700px" }}>Description</th>
                 <th>Difficulty</th>
-                <th>Actions</th>
+                {isAdmin && (<th>Actions</th>)}
               </tr>
             </thead>
             <tbody>
@@ -82,15 +102,19 @@ const Problems = () => {
                       {problem.description}
                     </div>
                   </td>
-                  <td>{problem.difficulty}</td>
+                  <td>{problem.difficulty}</td>                  
+                  {isAdmin && ( // Render admin actions if user is admin
                   <td>
-                    <Link to={`update/${problem._id}`} className="btn btn-warning me-2">
+                   <>
+                    <Link to={`../update/${problem._id}`} className="btn btn-warning me-2">
                       Update
-                    </Link>
+                    </Link>                    
                     <button className="btn btn-danger" onClick={() => handleDelete(problem._id)}>
                       Delete
                     </button>
+                   </>
                   </td>
+                  )}                 
                 </tr>
               ))}
             </tbody>

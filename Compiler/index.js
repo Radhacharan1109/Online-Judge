@@ -92,7 +92,6 @@ app.post('/verdict/:id', async (req, res) => {
     const { code, language } = req.body;
     const problemId = req.params.id;
 
-    console.log('Received request:', { code, language, problemId });
 
     if (!code) {
       return res.status(400).json({ success: false, error: 'Code is required!' });
@@ -104,14 +103,11 @@ app.post('/verdict/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Problem not found!' });
     }
 
-    console.log('Retrieved problem:', problem);
-
     const testResults = [];
     let overallVerdict = true;
 
     for (const testcase of problem.testcases) {
       const { input, output: expectedOutput } = testcase;
-      console.log('Processing testcase:', testcase);
 
       const inputFilePath = await generateInputFile(input);
       let generatedOutput;
@@ -139,10 +135,7 @@ app.post('/verdict/:id', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Unsupported language!' });
         }
 
-        console.log('Generated output:', generatedOutput);
-
         const isCorrect = await compareOutputs(generatedOutput, expectedOutput);
-        console.log('Comparison result:', isCorrect);
 
         testResults.push({ input, expectedOutput, generatedOutput, isCorrect });
 
@@ -151,14 +144,11 @@ app.post('/verdict/:id', async (req, res) => {
           break;
         }
       } catch (error) {
-        console.error('Error executing code:', error);
-        return res.status(500).json({ success: false, error: error.message });
-      } 
+        res.status(500).json({ error: JSON.stringify(error) });} 
     }
     res.json({ success: true, overallVerdict, testResults });
   } catch (error) {
-    console.error('Error processing verdict:', error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ error: JSON.stringify(error) });
   }
 });
 

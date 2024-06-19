@@ -7,11 +7,11 @@ CodeLane is a full stack online judge platform built using MERN stack (MongoDB, 
 ### Features
 
 1. User authentication with JWT.
-2. CRUD(create,read,update and delete) operations on problems and their respective testcases. 
+2. CRUD (create,read,update and delete) operations on problems and their respective testcases(only by admin). 
 3. Profile view and edit.
-4. Code compilation and execution using a custom compiler.
+4. Code compilation and execution using compiler.
 5. Code submissions available for multiple languages.
-6. Verdict on problem submissions.
+6. Verdict on solution submitted by user.
 7. Submission table which shows successful submissions of all users.
 
 ### Technologies Used
@@ -23,8 +23,8 @@ CodeLane is a full stack online judge platform built using MERN stack (MongoDB, 
 
 ### Prerequisites
 1. Node.js and npm installed on your machine
-2. Software development kits(SDK's) for C, C++, Java and Python installed on your machine.
-3. Docker and Docker Compose installed
+2. Software development kits (SDK's) of C, C++, Java and Python installed on your machine
+3. Docker installed
 4. MongoDB Atlas account
 
 ## Installation

@@ -31,9 +31,23 @@ app.get("/", (req, res) => {
   res.json({ online: 'backend' });
 });
 
-// Authentication check endpoint
+// Authentication check 
 app.get("/checkAuth", authenticateToken, (req, res) => {
   res.status(200).json({ message: "Authenticated" });
+});
+
+app.get("/checkAdmin", authenticateToken, async (req, res) => {
+  try {
+      const user = await User.findById(req.user.id);
+      // Check if the user exists and is an admin
+      if (!user || !user.isAdmin) {
+          return res.status(403).json({ message: "Unauthorized" });
+      }
+      res.status(200).json({ isAdmin: true });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Server error" });
+  }
 });
 
 app.post("/register", async (req, res) => {
@@ -109,7 +123,7 @@ app.post("/login", async (req, res) => {
     //store token cookies with options
     const options = {
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      httpOnly: true, //only manipulate by server not by client/user
+      httpOnly: true, 
     };
 
     // send the token as a cookie
@@ -128,7 +142,6 @@ app.post("/login", async (req, res) => {
 
 //USER PROFILE
 
-// Update profile endpoint
 app.put("/updateprofile", authenticateToken, async (req, res) => {
   try {
     const { username, email } = req.body;
@@ -158,7 +171,7 @@ app.put("/updateprofile", authenticateToken, async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       { username, email },
-      { new: true, select: "-password -token" }
+      { new: true, select: "-password -token -isAdmin" }
     );
 
     if (!updatedUser) {
@@ -190,7 +203,7 @@ app.put("/updateprofile", authenticateToken, async (req, res) => {
 
 app.get("/viewprofile", authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password -token");
+    const user = await User.findById(req.user.id).select("-password -token -isAdmin");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -278,7 +291,7 @@ app.post("/createproblem", async (req, res) => {
 });
 
 app.get("/readproblems", (req, res) => {
-  Problem.find({})
+  Problem.find({}).select("-testcases")
     .then((problems) => res.json(problems))
     .catch((err) => res.json(err));
 });

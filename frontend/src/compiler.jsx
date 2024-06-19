@@ -16,13 +16,19 @@ const Compiler = () => {
     error: "",
   });
   const [activeTab, setActiveTab] = useState("input"); // State to track active tab
-  const [verdict, setVerdict] = useState({ loading: false, overallVerdict: null, testResults: [] });
+  const [verdict, setVerdict] = useState({
+    loading: false,
+    overallVerdict: null,
+    testResults: [],
+  });
   const [username, setUsername] = useState(""); // State to store username
 
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_URL1}/getProblem/` + id);
+        const response = await axios.get(
+          `${import.meta.env.VITE_URL1}/getProblem/` + id
+        );
         setProblem(response.data);
       } catch (error) {
         console.error("Error fetching problem:", error);
@@ -34,7 +40,10 @@ const Compiler = () => {
   useEffect(() => {
     const fetchUsername = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_URL1}/viewprofile`, { withCredentials: true });
+        const response = await axios.get(
+          `${import.meta.env.VITE_URL1}/viewprofile`,
+          { withCredentials: true }
+        );
         setUsername(response.data.user.username);
       } catch (error) {
         console.error("Error fetching username:", error);
@@ -75,9 +84,9 @@ const Compiler = () => {
       // After compilation, click the output tab button
       outputTabRef.current.click();
     } catch (err) {
-      const errorMsg = err.response
-        ? err.response?.data?.error
-        : "An error occurred while compiling the code.";
+      const errorMsg =
+        err.response?.data?.error ||
+        "An error occurred while compiling the code.";
       setFormData({
         ...formData,
         error: errorMsg,
@@ -91,10 +100,13 @@ const Compiler = () => {
   const handleVerdict = async () => {
     try {
       setVerdict({ ...verdict, loading: true });
-      const response = await axios.post(`${import.meta.env.VITE_URL2}/verdict/` + id, {
-        code: formData.code,
-        language: formData.language,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_URL2}/verdict/` + id,
+        {
+          code: formData.code,
+          language: formData.language,
+        }
+      );
       setVerdict({ ...response.data, loading: false });
       verdictTabRef.current.click();
 
@@ -106,7 +118,10 @@ const Compiler = () => {
           language: formData.language,
           submissionTime: new Date().toISOString(),
         };
-        await axios.post(`${import.meta.env.VITE_URL1}/addSubmission`, submissionData);
+        await axios.post(
+          `${import.meta.env.VITE_URL1}/addSubmission`,
+          submissionData
+        );
         console.log("Submission added successfully.");
       }
     } catch (error) {
@@ -115,7 +130,9 @@ const Compiler = () => {
         loading: false,
         overallVerdict: null,
         testResults: [],
-        error: error.response ? error.response?.data?.error : "An error occurred while compiling the code.",
+        error:
+          error.response?.data?.error ||
+          "An error occurred while compiling the code.",
       });
       verdictTabRef.current.click();
     }
@@ -130,8 +147,10 @@ const Compiler = () => {
   }
 
   // Extract the first test case for sample input and output
-  const sampleInput = problem.testcases.length > 0 ? problem.testcases[0].input : "";
-  const sampleOutput = problem.testcases.length > 0 ? problem.testcases[0].output : "";
+  const sampleInput =
+    problem.testcases.length > 0 ? problem.testcases[0].input : "";
+  const sampleOutput =
+    problem.testcases.length > 0 ? problem.testcases[0].output : "";
 
   return (
     <div className="container mt-4" style={{ minHeight: "100vh" }}>
@@ -142,16 +161,21 @@ const Compiler = () => {
           <textarea
             className="form-control"
             rows={14}
-            readOnly 
+            readOnly
             value={problem.description}
           />
-          {problem.testcases.length>0 && (
-          <div className="mt-3">
-            <h5>Sample Input</h5>
-            <pre className="form-control" readOnly>{sampleInput}</pre>
-            <h5>Sample Output</h5>
-            <pre className="form-control" readOnly>{sampleOutput}</pre>
-          </div>)}
+          {problem.testcases.length > 0 && (
+            <div className="mt-3">
+              <h5>Sample Input</h5>
+              <pre className="form-control" readOnly>
+                {sampleInput}
+              </pre>
+              <h5>Sample Output</h5>
+              <pre className="form-control" readOnly>
+                {sampleOutput}
+              </pre>
+            </div>
+          )}
         </div>
 
         <div className="col-md-6">
@@ -193,28 +217,43 @@ const Compiler = () => {
             </form>
           </div>
 
-          {/* Toggle Tabs at Top */}
-          <div className="tabs mb-4">
-            <button
-              className={`tab ${activeTab === "input" ? "active" : ""}`}
-              onClick={() => toggleTab("input")}
-            >
-              Input
-            </button>
-            <button
-              ref={outputTabRef}
-              className={`tab ${activeTab === "output" ? "active" : ""}`}
-              onClick={() => toggleTab("output")}
-            >
-              Output
-            </button>
-            <button
-              ref={verdictTabRef}
-              className={`tab ${activeTab === "verdict" ? "active" : ""}`}
-              onClick={() => toggleTab("verdict")}
-            >
-              Verdict
-            </button>
+          {/* Toggle Tabs */}
+          <div className="mb-4">
+            <ul className="nav nav-tabs" role="tablist">
+              <li className="nav-item" role="presentation">
+                <button
+                  className={`nav-link ${
+                    activeTab === "input" ? "active" : ""
+                  }`}
+                  onClick={() => toggleTab("input")}
+                  style={{ color: "black" }}
+                >
+                  Input
+                </button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button
+                  className={`nav-link ${
+                    activeTab === "output" ? "active" : ""
+                  }`}
+                  onClick={() => toggleTab("output")}
+                  style={{ color: "black" }}
+                >
+                  Output
+                </button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button
+                  className={`nav-link ${
+                    activeTab === "verdict" ? "active" : ""
+                  }`}
+                  onClick={() => toggleTab("verdict")}
+                  style={{ color: "black" }}
+                >
+                  Verdict
+                </button>
+              </li>
+            </ul>
           </div>
 
           {/* Content for Input, Output, and Verdict */}
@@ -245,7 +284,7 @@ const Compiler = () => {
                       <pre>Output will appear here...</pre>
                     )}
                   </div>
-                )}
+                )}                                
                 {activeTab === "verdict" && (
                   <div className="verdict">
                     {verdict.loading ? (
@@ -272,7 +311,7 @@ const Compiler = () => {
                       </div>
                     )}
                   </div>
-                )}
+                )}      
               </div>
             </div>
           </div>
