@@ -20,6 +20,7 @@ const Compiler = () => {
     loading: false,
     overallVerdict: null,
     testResults: [],
+    error: "",
   });
   const [username, setUsername] = useState(""); // State to store username
 
@@ -238,6 +239,7 @@ const Compiler = () => {
                   }`}
                   onClick={() => toggleTab("output")}
                   style={{ color: "black" }}
+                  ref={outputTabRef}
                 >
                   Output
                 </button>
@@ -249,6 +251,7 @@ const Compiler = () => {
                   }`}
                   onClick={() => toggleTab("verdict")}
                   style={{ color: "black" }}
+                  ref={verdictTabRef}
                 >
                   Verdict
                 </button>

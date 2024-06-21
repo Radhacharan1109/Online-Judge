@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173","https://codelane-mu.vercel.app"],
     credentials: true, // This is important for sending cookies
   })
 );
@@ -110,9 +110,9 @@ app.post('/verdict/:id', async (req, res) => {
       const { input, output: expectedOutput } = testcase;
 
       const inputFilePath = await generateInputFile(input);
-      let generatedOutput;
 
       try {
+        let generatedOutput;
         let sourceFilePath;
         switch (language) {
           case 'cpp':
@@ -144,7 +144,9 @@ app.post('/verdict/:id', async (req, res) => {
           break;
         }
       } catch (error) {
-        res.status(500).json({ error: JSON.stringify(error) });} 
+        console.log("Error in code execution");
+        overallVerdict = false;
+      } 
     }
     res.json({ success: true, overallVerdict, testResults });
   } catch (error) {
