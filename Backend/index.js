@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://codelane-mu.vercel.app"],
+    origin: ["http://localhost:5173","https://codelane-mu.vercel.app","https://www.codelane.online"],
     credentials: true, // This is important for sending cookies
   })
 );
@@ -124,6 +124,8 @@ app.post("/login", async (req, res) => {
     const options = {
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
       httpOnly: true, 
+      sameSite: "None",
+      secure: true,
     };
 
     // send the token as a cookie
